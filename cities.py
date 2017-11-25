@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial.distance import euclidean
 
 
 class Cities:
@@ -12,4 +13,4 @@ class Cities:
     # distances between cities
     @property
     def d(self):
-        return np.array([[np.sum((self.c[x] - self.c[y]) ** 2) for y in range(self.n)] for x in range(self.n)])
+        return np.array([[euclidean(c1, c2) for c2 in self.c] for c1 in self.c])
