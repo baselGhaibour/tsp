@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 
 
 class Hopfield:
-    def __init__(self, n, d):
+    def __init__(self, d):
         """Initialize the Hopfield network.
 
         Args:
         n: number of cities
         d: distances between cities
         """
-        self.n = n
+        self.n = d.shape[0]
 
         # weights between neurons
         self.w = np.zeros((self.n, self.n, self.n, self.n))
