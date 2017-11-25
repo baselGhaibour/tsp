@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 
 class Hopfield:
     def __init__(self, n, d):
-        """Initializes the Hopfield network.
+        """Initialize the Hopfield network.
 
-        Arguments:
-        n -- number of cities
-        d -- distances between cities
+        Args:
+        n: number of cities
+        d: distances between cities
         """
         self.n = n
 
@@ -32,10 +32,10 @@ class Hopfield:
 
     @property
     def e(self):
-        """Returns the energy of Hopfield network at the time.
+        """Return the energy of Hopfield network at the time.
 
         Returns:
-        e -- energy of the Hopfield network
+        e: energy of the Hopfield network
         """
         e = 0
         for x in range(self.n):
@@ -47,11 +47,11 @@ class Hopfield:
         return e
 
     def update(self, x, i):
-        """Updates the state of selected neuron.
+        """Update the state of selected neuron.
 
-        Arguments:
-        x -- index of the neuron to be updated
-        i -- index of the neuron to be updated
+        Args:
+        x: index of the neuron to be updated
+        i: index of the neuron to be updated
 
         Returns:
         updated state of the selected neuron
@@ -63,10 +63,10 @@ class Hopfield:
             return 0
 
     def is_minimum(self):
-        """Checks if the energy is a minimum.
+        """Check if the energy is the minimum.
 
         Returns:
-        True if the energy is a minimum, False if not
+        True if the energy is the minimum, otherwise not
         """
         for x in range(self.n):
             for i in range(self.n):
@@ -75,7 +75,7 @@ class Hopfield:
         return True
 
     def go_to_minimum(self):
-        """Repeats updating until the energy becomes a minimum."""
+        """Repeat updating until the energy becomes the minimum."""
         self.e_array = np.array([self.e])
         while not self.is_minimum():
             x = np.random.randint(self.n)
@@ -84,6 +84,6 @@ class Hopfield:
             self.e_array = np.append(self.e_array, self.e)
 
     def plot_energy(self):
-        """Plots the energy."""
+        """Plot the energy."""
         plt.plot(self.e_array)
         plt.show()
