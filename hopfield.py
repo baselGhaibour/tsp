@@ -12,6 +12,7 @@ class Hopfield:
         d: distances between cities
         """
         self.n = d.shape[0]
+        self.d = d
 
         # weights between neurons
         self.w = np.zeros((self.n, self.n, self.n, self.n))
@@ -45,6 +46,24 @@ class Hopfield:
                         e += - 0.5 * self.w[x][i][y][j] * self.s[x][i] * self.s[y][j]
                 e += - self.b[x][i] * self.s[x][i]
         return e
+
+    @property
+    def e_tsp(self):
+        """Return the energy for the Travelling Salesman Problem at the time.
+
+        This energy is the same as the energy returned by the function e().
+
+        Returns:
+        energy for the Travelling Salesman Problem
+        """
+        e1 = np.sum((np.sum(self.s, axis=1) - 1) ** 2)
+        e2 = np.sum((np.sum(self.s, axis=0) - 1) ** 2)
+        e3 = 0
+        for x in range(self.n):
+            for i in range(self.n):
+                for y in range(self.n):
+                    e3 += self.d[x][y] * self.s[x][i] * self.s[y][(i + 1) % self.n]
+        return e1 + e2 + e3 - 2 * self.n
 
     def update(self, x, i):
         """Update the state of selected neuron.
