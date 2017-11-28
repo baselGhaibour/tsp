@@ -66,7 +66,7 @@ class Hopfield:
         """Check if the energy is the minimum.
 
         Returns:
-        True if the energy is the minimum, otherwise not
+        True if the energy is the minimum, otherwise False
         """
         for x in range(self.n):
             for i in range(self.n):
