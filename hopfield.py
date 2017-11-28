@@ -1,18 +1,21 @@
+from scipy.spatial.distance import euclidean
 from sympy import KroneckerDelta
 import numpy as np
 import matplotlib.pyplot as plt
 
+from permutation import permutation
+
 
 class Hopfield:
-    def __init__(self, d, hyperparameter):
+    def __init__(self, c, hyperparameter):
         """Initialize the Hopfield network.
 
         Args:
         n: number of cities
         d: distances between cities
         """
-        self.n = d.shape[0]
-        self.d = d
+        self.n = c.shape[0]
+        self.c = c
 
         # hyperparameter represents how much you weigh the distance term relative to constraint term
         self.hyperparameter = hyperparameter
@@ -23,7 +26,7 @@ class Hopfield:
             for i in range(self.n):
                 for y in range(self.n):
                     for j in range(self.n):
-                        self.w[x][i][y][j] = -2 * (KroneckerDelta(x, y) + KroneckerDelta(i, j) + d[x][y] * KroneckerDelta((i + 1) % self.n, j) * self.hyperparameter)
+                        self.w[x][i][y][j] = -2 * (KroneckerDelta(x, y) + KroneckerDelta(i, j) + self.d[x][y] * KroneckerDelta((i + 1) % self.n, j) * self.hyperparameter)
 
         # biases to neurons
         self.b = np.zeros((self.n, self.n))
@@ -33,6 +36,10 @@ class Hopfield:
 
         # states of neurons
         self.s = np.random.choice([0, 1], (self.n, self.n))
+
+    @property
+    def d(self):
+        return np.array([[euclidean(c1, c2) for c2 in self.c] for c1 in self.c])
 
     @property
     def e(self):
@@ -108,4 +115,36 @@ class Hopfield:
     def plot_energy(self):
         """Plot the energy."""
         plt.plot(self.e_array)
+        plt.show()
+
+    def shortest_route(self):
+        """Return the shortest route.
+
+        Returns:
+        shortest route
+        """
+        perms = permutation(self.n)
+        index_min = 0
+        d_min = 0
+        for i in range(self.n):
+            d_min += self.d[perms[0][i]][perms[0][(i + 1) % self.n]]
+
+        for index, perm in enumerate(perms):
+            d = 0
+            for i in range(self.n):
+                d += self.d[perm[i]][perm[(i + 1) % self.n]]
+            if d < d_min:
+                d_min = d
+                index_min = index
+
+        return perms[index_min]
+
+    def show_shortest_route(self):
+        """Show the shortest route."""
+        shortest_route = self.shortest_route()
+        c = []
+        for i in range(self.n + 1):
+            c.append(self.c[shortest_route[i % self.n]])
+        c = np.array(c)
+        plt.plot(c.T[0], c.T[1])
         plt.show()
