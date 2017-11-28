@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class Hopfield:
-    def __init__(self, d):
+    def __init__(self, d, hyperparameter):
         """Initialize the Hopfield network.
 
         Args:
@@ -12,6 +12,10 @@ class Hopfield:
         d: distances between cities
         """
         self.n = d.shape[0]
+        self.d = d
+
+        # hyperparameter represents how much you weigh the distance term relative to constraint term
+        self.hyperparameter = hyperparameter
 
         # weights between neurons
         self.w = np.zeros((self.n, self.n, self.n, self.n))
@@ -19,13 +23,13 @@ class Hopfield:
             for i in range(self.n):
                 for y in range(self.n):
                     for j in range(self.n):
-                        self.w[x][i][y][j] = - 2 * d[x][y] * KroneckerDelta((i + 1) % self.n, j)
+                        self.w[x][i][y][j] = -2 * (KroneckerDelta(x, y) + KroneckerDelta(i, j) + d[x][y] * KroneckerDelta((i + 1) % self.n, j) * self.hyperparameter)
 
         # biases to neurons
         self.b = np.zeros((self.n, self.n))
         for x in range(self.n):
             for i in range(self.n):
-                self.b[x][i] = - 2
+                self.b[x][i] = 4
 
         # states of neurons
         self.s = np.random.choice([0, 1], (self.n, self.n))
@@ -45,6 +49,24 @@ class Hopfield:
                         e += - 0.5 * self.w[x][i][y][j] * self.s[x][i] * self.s[y][j]
                 e += - self.b[x][i] * self.s[x][i]
         return e
+
+    @property
+    def e_tsp(self):
+        """Return the energy for the Travelling Salesman Problem at the time.
+
+        This energy is the same as the energy returned by the function e().
+
+        Returns:
+        energy for the Travelling Salesman Problem
+        """
+        e1 = np.sum((np.sum(self.s, axis=1) - 1) ** 2)
+        e2 = np.sum((np.sum(self.s, axis=0) - 1) ** 2)
+        e3 = 0
+        for x in range(self.n):
+            for i in range(self.n):
+                for y in range(self.n):
+                    e3 += self.d[x][y] * self.s[x][i] * self.s[y][(i + 1) % self.n]
+        return e1 + e2 + e3 * self.hyperparameter - 2 * self.n
 
     def update(self, x, i):
         """Update the state of selected neuron.
@@ -66,7 +88,7 @@ class Hopfield:
         """Check if the energy is the minimum.
 
         Returns:
-        True if the energy is the minimum, otherwise not
+        True if the energy is the minimum, otherwise False
         """
         for x in range(self.n):
             for i in range(self.n):
