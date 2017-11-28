@@ -19,13 +19,13 @@ class Hopfield:
             for i in range(self.n):
                 for y in range(self.n):
                     for j in range(self.n):
-                        self.w[x][i][y][j] = - 2 * d[x][y] * KroneckerDelta((i + 1) % self.n, j)
+                        self.w[x][i][y][j] = -2 * (KroneckerDelta(x, y) + KroneckerDelta(i, j) + d[x][y] * KroneckerDelta((i + 1) % self.n, j))
 
         # biases to neurons
         self.b = np.zeros((self.n, self.n))
         for x in range(self.n):
             for i in range(self.n):
-                self.b[x][i] = - 2
+                self.b[x][i] = 4
 
         # states of neurons
         self.s = np.random.choice([0, 1], (self.n, self.n))
