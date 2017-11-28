@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class Hopfield:
-    def __init__(self, d):
+    def __init__(self, d, hyperparameter):
         """Initialize the Hopfield network.
 
         Args:
@@ -14,13 +14,16 @@ class Hopfield:
         self.n = d.shape[0]
         self.d = d
 
+        # hyperparameter represents how much you weigh the distance term relative to constraint term
+        self.hyperparameter = hyperparameter
+
         # weights between neurons
         self.w = np.zeros((self.n, self.n, self.n, self.n))
         for x in range(self.n):
             for i in range(self.n):
                 for y in range(self.n):
                     for j in range(self.n):
-                        self.w[x][i][y][j] = -2 * (KroneckerDelta(x, y) + KroneckerDelta(i, j) + d[x][y] * KroneckerDelta((i + 1) % self.n, j))
+                        self.w[x][i][y][j] = -2 * (KroneckerDelta(x, y) + KroneckerDelta(i, j) + d[x][y] * KroneckerDelta((i + 1) % self.n, j) * self.hyperparameter)
 
         # biases to neurons
         self.b = np.zeros((self.n, self.n))
@@ -63,7 +66,7 @@ class Hopfield:
             for i in range(self.n):
                 for y in range(self.n):
                     e3 += self.d[x][y] * self.s[x][i] * self.s[y][(i + 1) % self.n]
-        return e1 + e2 + e3 - 2 * self.n
+        return e1 + e2 + e3 * self.hyperparameter - 2 * self.n
 
     def update(self, x, i):
         """Update the state of selected neuron.
